@@ -25,7 +25,7 @@ public class UserService {
     public Map<String, Object> getAllUsers(int page) {
         Pageable pageable = PageRequest.of(page - 1, 10);
         Page<User> userPage = userRepository.findAll(pageable);
-        
+
         List<User> users = userPage.getContent();
         Long totalUser = userPage.getTotalElements();
         int totalPage = userPage.getTotalPages();
@@ -40,7 +40,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user " + id + " not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user " + id + " not found"));
     }
 
     public User getUserByEmail(String email) {
@@ -52,16 +52,32 @@ public class UserService {
     }
 
     public User saveUser(CreateUserDto userDto) {
+        checkIfEmailOrUsernameExists(userDto.getEmail(), userDto.getUsername());
+
         User user = User.build(0L, userDto.getUsername(), userDto.getPassword(), userDto.getEmail());
         return userRepository.save(user);
     }
 
     public User updateUser(Long id, UpdateUserDto userDto) {
+        checkIfEmailOrUsernameExists(userDto.getEmail(), userDto.getUsername());
+
         User user = this.getUserById(id);
         user.setUsername(userDto.getUsername());
         user.setPassword(userDto.getPassword());
         user.setEmail(userDto.getEmail());
         return userRepository.save(user);
+    }
+
+    private void checkIfEmailOrUsernameExists(String email, String username) {
+        User userFindByEmail = this.getUserByEmail(email);
+        if (userFindByEmail != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
+
+        User userFindByUsername = this.getUserByUsername(username);
+        if (userFindByUsername != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
+        }
     }
 
     public Map<String, String> deleteUser(Long id) {

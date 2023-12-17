@@ -10,7 +10,7 @@ public class CreateUserDto {
     @NotNull(message = "must be filled")
     @NotBlank(message = "must be filled")
     public String username;
-    
+
     @NotNull(message = "must be filled")
     @NotBlank(message = "must be filled")
     public String password;

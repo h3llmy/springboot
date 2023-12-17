@@ -10,7 +10,7 @@ public class UpdateUserDto {
     @NotNull
     @NotBlank
     public String username;
-    
+
     @NotNull
     @NotBlank
     public String password;
